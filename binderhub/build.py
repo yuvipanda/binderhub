@@ -16,7 +16,7 @@ import kubernetes.config
 from kubernetes import client, watch
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
-from traitlets import Any, Bool, Dict, Integer, Unicode, default
+from traitlets import Any, Bool, Dict, Integer, List, Unicode, default
 from traitlets.config import LoggingConfigurable
 
 from .utils import KUBE_REQUEST_TIMEOUT, ByteSpecification, rendezvous_rank
@@ -125,6 +125,15 @@ class BuildExecutor(LoggingConfigurable):
         config=True,
     )
 
+    repo2docker_extra_args = List(
+        Unicode,
+        default_value=[],
+        help="""
+        Extra commandline parameters to be passed to jupyter-repo2docker during build
+        """,
+        config=True,
+    )
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.main_loop = IOLoop.current()
@@ -155,6 +164,8 @@ class BuildExecutor(LoggingConfigurable):
         if self.memory_limit:
             r2d_options.append("--build-memory-limit")
             r2d_options.append(str(self.memory_limit))
+
+        r2d_options += self.repo2docker_extra_args
 
         return r2d_options
 
@@ -277,7 +288,7 @@ class KubernetesBuildExecutor(BuildExecutor):
         return os.getenv("BUILD_NAMESPACE", "default")
 
     build_image = Unicode(
-        "quay.io/jupyterhub/repo2docker:2022.10.0",
+        "quay.io/jupyterhub/repo2docker:2023.06.0",
         help="Docker image containing repo2docker that is used to spawn the build pods.",
         config=True,
     )
