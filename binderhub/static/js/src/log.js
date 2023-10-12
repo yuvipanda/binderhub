@@ -1,6 +1,12 @@
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 
+/**
+ * Set up a read only xterm.js based terminal to receive log lines
+ *
+ * @returns Array of the xterm.js instance to write to, and a FitAddon instance to use for resizing the xterm appropriately
+ *
+ */
 export function setUpLog() {
   const log = new Terminal({
     convertEol: true,
